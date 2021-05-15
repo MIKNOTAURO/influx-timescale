@@ -81,20 +81,20 @@ DATABASES = {
     }
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'timescale.db.backends.postgresql',
-        'NAME': 'fernando',
-        'USER': 'fernando1234',
-        'PASSWORD': 'trafico-wisphub',
-        'HOST': '3.132.97.208',  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',
-        'OPTIONS': {
-            # "init_command": "SET storage_engine=InnoDB",
-            # "init_command": "SET GLOBAL max_connections = 100000",
-        }
-    },
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'timescale.db.backends.postgresql',
+#         'NAME': 'fernando',
+#         'USER': 'fernando1234',
+#         'PASSWORD': 'trafico-wisphub',
+#         'HOST': '3.132.97.208',  # Set to empty string for localhost. Not used with sqlite3.
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             # "init_command": "SET storage_engine=InnoDB",
+#             # "init_command": "SET GLOBAL max_connections = 100000",
+#         }
+#     },
+# }
 
 TIMESCALE_DB_BACKEND_BASE = "django.contrib.gis.db.backends.postgis"
 
