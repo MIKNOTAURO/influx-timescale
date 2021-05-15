@@ -3,6 +3,8 @@ import random
 import struct
 import time
 import psycopg2
+from psycopg2 import extras
+
 now = int(round(time.time() * 1000000000))
 
 
@@ -40,7 +42,7 @@ def write_points(n):
         points_ip_visited.append(
             "ip_visited,id_empresa={0},empresa={1},cliente_id={2},ip_visited={3} download={4} {5}".format(
                 empresa_id, empresa_slug, cliente_id, str(ip_random), str(dowload_bits), now))
-    client_influx.write_points(points_ip_visited, protocol='line')
+    client_influx.write_points(points_ip_visited, protocol='line', batch_size=10000)
 
     end_time = time.time()
     time_elapsed = end_time - initial_time
@@ -58,7 +60,8 @@ def write_points_timescale(n):
     empresas = ['fcetina', 'megabit', 'megabit2']
     db_conn = psycopg2.connect(dbname='trafico-wisphub', user='fernando', host='3.132.97.208', password='fernando1234')
     cursor = db_conn.cursor()
-
+    insert_query = "INSERT INTO ip_visited (time, id_empresa, empresa, cliente_id, ip_visited, download) VALUES (%s, %s, %s, %s, %s, %s)"
+    my_data = []
     for i in range(n):
         ip_random = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
         dowload_bits = random.randrange(20000)
@@ -67,10 +70,12 @@ def write_points_timescale(n):
         empresa_id = random.randrange(1, 3)
         empresa_slug = empresas[empresa_id - 1]
 
-        insert_query = "INSERT INTO ip_visited (time, id_empresa, empresa, cliente_id, ip_visited, download) VALUES (%s, %s, %s, %s, %s, %s)"
         record_to_insert = (
         "now()", empresa_id, empresa_slug, cliente_id, ip_random, dowload_bits)
-        cursor.execute(insert_query, record_to_insert)
+        my_data.append(record_to_insert)
+
+    # cursor.executemany(insert_query, my_data)
+    extras.execute_batch(cursor, insert_query, my_data, 10000)
     db_conn.commit()
     cursor.close()
     db_conn.close()
