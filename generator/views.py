@@ -1,9 +1,12 @@
+import datetime
 import socket
 import random
 import struct
 import time
 import psycopg2
 from psycopg2 import extras
+
+from generator.models import traffic
 
 now = int(round(time.time() * 1000000000))
 
@@ -83,3 +86,35 @@ def write_points_timescale(n):
     time_elapsed = end_time - initial_time
 
     print "Se escribieron {0} puntos en {1} s".format(str(n), time_elapsed)
+
+
+def write_points_mysql(n):
+    initial_time = time.time()
+    from django.utils import timezone
+    from datetime import timedelta
+    from django.db.models import Count, Avg
+    ranges = (timezone.now() - timedelta(days=2), timezone.now())
+    empresas = ['fcetina', 'megabit', 'megabit2']
+    # test = test_metrics.timescale.filter(time__range=ranges)
+    # print(test)
+    points = []
+    for i in range(n):
+        time_now = datetime.datetime.now()
+        ip_random = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
+        dowload_bits = random.randrange(20000)
+        upload_bits = random.randrange(1000)
+        cliente_id = random.randrange(1000, 1100)
+        empresa_id = random.randrange(1, 3)
+        empresa_slug = empresas[empresa_id - 1]
+        points.append(
+            traffic(id_empresa=empresa_id, empresa=empresa_slug, cliente_id=cliente_id, ip_visited=ip_random,
+                         download=dowload_bits, time=time_now))
+    traffic.objects.bulk_create(points)
+
+    end_time = time.time()
+    time_elapsed = end_time - initial_time
+    print ("Se escribieron {0} puntos en {1} s".format(str(n), time_elapsed))
+    # registros = (test_metrics.timescale.filter(time__range=ranges).time_bucket_gapfill(
+    #     'time', '1 day', ranges[0], ranges[1], datapoints=240).annotate(Avg('download')))
+    #
+    # print(registros)

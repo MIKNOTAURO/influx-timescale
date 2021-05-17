@@ -76,9 +76,18 @@ WSGI_APPLICATION = 'ts.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_traffic',
+        'USER': 'ahkin',
+        'PASSWORD': 'ahkin_test',
+        'HOST': '3.132.97.208',  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',
+        'OPTIONS': {
+            # "init_command": "SET storage_engine=InnoDB",
+            # "init_command": "SET GLOBAL max_connections = 100000",
+        }
+
+    },
 }
 
 # DATABASES = {
